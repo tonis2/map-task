@@ -1,0 +1,13 @@
+@import url('https://fonts.googleapis.com/css?family=Mukta+Malar');
+
+:root {
+  --white: #FAF9FC;
+  --red: #C62828;
+  --grey: #E0E0E0;
+  --grey-dark:#424242;
+  --green: #2E7D32;
+  --blue:#607D8B;
+  --teal:#009688;
+  --yellow:#F9A825;
+  --black:#2c3e50;
+}
