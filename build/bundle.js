@@ -2213,7 +2213,7 @@ var Sidebar = function (_React$Component) {
               "div",
               { key: waypoint.id, className: "sidebar-item" },
               react.createElement("img", {
-                src: "/icons/menu.svg",
+                src: "../icons/menu.svg",
                 alt: "menu-item"
               }),
               react.createElement(
@@ -2223,7 +2223,7 @@ var Sidebar = function (_React$Component) {
                 index
               ),
               react.createElement("img", {
-                src: "/icons/delete.svg",
+                src: "../icons/delete.svg",
                 alt: "remove",
                 title: "remove waypoint",
                 className: "remove-item",
