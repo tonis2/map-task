@@ -59,11 +59,11 @@ p {
   grid-template-columns:0.9fr;
   grid-row-gap:1.7vmin;
   padding-top: 2vmin;
-  padding-bottom: 8vmin;
+
   background:var(--black);
   color:var(--white);
   font-size:3vmin;
-  height:calc(100vh - 10vmin);
+  height:calc(100vh - 2vmin);
   overflow-y: auto;
   position: relative;
 }
@@ -94,6 +94,7 @@ p {
   display:grid;
   grid-auto-rows: max-content;
   grid-template-columns:1fr;
+  padding-bottom: 8vmin;
 }
 
 #sidebar #save-data {

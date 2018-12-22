@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { RemovePoint, Download } from "../actions";
+import { RemovePoint } from "../actions";
 
 class Sidebar extends React.Component {
 
@@ -9,21 +9,7 @@ class Sidebar extends React.Component {
   }
 
   downloadRoute() {
-    const route = JSON.stringify(this.props.waypoints)
-    console.log(route)
-    const data =
-      "data:application/javascript;charset=utf-8," + encodeURIComponent(route);
-  
-    const link = document.createElement("a");
-    link.href = data;
-    link.target = "_blank";
-    link.style.display = "none";
-    link.download = "Tracks.gpx"
-  
-    document.body.appendChild(link);
-    link.click();
-  
-    link.remove();
+    document.dispatchEvent(new CustomEvent("download"));
   }
 
   render() {

@@ -13,12 +13,58 @@ class Map extends React.Component {
   constructor() {
     super();
     this.markerCluster = L.layerGroup();
+    document.addEventListener("download", this.downloadGPX.bind(this));
   }
 
   movePointPosition(event) {
     const { lat, lng } = event.target.getLatLng();
     const markerID = event.target.ID;
     this.props.dispatch(MovePoint(markerID, lat, lng));
+  }
+
+  downloadGPX() {
+    const xmlData = this.props.waypoints.map((entry, index) => {
+      return {
+        lat: entry.lat,
+        lng: entry.lng,
+        name: `Waypoint ${index}`
+      };
+    });
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+                version="1.0"
+                creator="Route planner"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns="http://www.topografix.com/GPX/1/0"
+                xsi:schemaLocation="http://www.topografix.com/GPX/1/0
+                http://www.topografix.com/GPX/1/0/gpx.xsd">
+                <gpx version="1.0">
+                    <name>My planned route</name>
+                    ${xmlData
+                      .map(location => {
+                        return `<wpt lat="${location.lat}" lon="${
+                          location.lng
+                        }">
+                                <name>${location.name}</name>
+                              </wpt>`;
+                      })
+                      .join("")}
+                </gpx>`;
+
+    console.log(xml);
+    const data =
+      "data:application/text;charset=utf-8," + encodeURIComponent(xml);
+
+    const link = document.createElement("a");
+    link.href = data;
+    link.target = "_blank";
+    link.style.display = "none";
+    link.download = "Tracks.gpx";
+
+    document.body.appendChild(link);
+    link.click();
+
+    link.remove();
   }
 
   createMarkers(waypoints) {
@@ -31,7 +77,7 @@ class Map extends React.Component {
       });
 
       marker.ID = location.id;
-      marker.on("dragend",  this.movePointPosition.bind(this));
+      marker.on("dragend", this.movePointPosition.bind(this));
       markers.push(marker);
     });
 
