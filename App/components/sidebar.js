@@ -22,12 +22,12 @@ class Sidebar extends React.Component {
             return (
               <div key={waypoint.id} className="sidebar-item">
                 <img
-                  src="./icons/menu.svg"
+                  src="icons/menu.svg"
                   alt="menu-item"
                 />
                 <span className="item-name">Waypoint {index}</span>
                 <img
-                  src="./icons/delete.svg"
+                  src="icons/delete.svg"
                   alt="remove"
                   title="remove waypoint"
                   className="remove-item"
