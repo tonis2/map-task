@@ -58,12 +58,14 @@ p {
   grid-auto-rows: max-content;
   grid-template-columns:0.9fr;
   grid-row-gap:1.7vmin;
-  padding: 2vmin 0;
+  padding-top: 2vmin;
+  padding-bottom: 8vmin;
   background:var(--black);
   color:var(--white);
   font-size:3vmin;
-  height:calc(100vh - 4vmin);
+  height:calc(100vh - 10vmin);
   overflow-y: auto;
+  position: relative;
 }
 
 #sidebar-title {
@@ -88,6 +90,27 @@ p {
   cursor:pointer;
 }
 
-#sidebar .full-width {
-  grid-area: 1/1/2/4;
+#sidebar #items-container {
+  display:grid;
+  grid-auto-rows: max-content;
+  grid-template-columns:1fr;
+}
+
+#sidebar #save-data {
+  background:var(--light-green);
+  color:var(--black);
+  text-align: center;
+  position: fixed;
+  bottom:2vmin;
+  left:20px;
+  padding: 5px 12px;
+  cursor:pointer;
+  transition: 0.2s ease-in-out;
+  border-radius:5px;
+  font-size:16px;
+  width:30vmin;
+}
+
+#sidebar #save-data:hover {
+  background:var(--teal);
 }

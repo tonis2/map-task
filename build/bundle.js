@@ -25747,8 +25747,6 @@ var Map$1 = function (_React$Component) {
           lng = _event$target$getLatL.lng;
 
       var markerID = event.target.ID;
-
-      console.log(this);
       this.props.dispatch(MovePoint(markerID, lat, lng));
     }
   }, {
@@ -25765,9 +25763,7 @@ var Map$1 = function (_React$Component) {
         });
 
         marker.ID = location.id;
-
         marker.on("dragend", _this2.movePointPosition.bind(_this2));
-
         markers.push(marker);
       });
 
@@ -25793,25 +25789,24 @@ var Map$1 = function (_React$Component) {
       this.markerCluster.addTo(this.map);
     }
   }, {
+    key: "addPointToMap",
+    value: function addPointToMap(event) {
+      var _event$latlng = event.latlng,
+          lat = _event$latlng.lat,
+          lng = _event$latlng.lng;
+
+      this.props.dispatch(AddPoint(lat, lng));
+    }
+  }, {
     key: "componentDidMount",
     value: function componentDidMount() {
-      var _this4 = this;
-
       var layer = new L.StamenTileLayer("terrain");
       var map = new L.Map("map-container", {
         center: new L.LatLng(52.4283408, 12.9572014, 12),
         zoom: 12
       });
       map.addLayer(layer);
-      map.on("click", function (event) {
-        var _event$latlng = event.latlng,
-            lat = _event$latlng.lat,
-            lng = _event$latlng.lng;
-
-
-        _this4.props.dispatch(AddPoint(lat, lng));
-      });
-
+      map.on("click", this.addPointToMap.bind(this));
       this.map = map;
     }
   }, {
@@ -25845,6 +25840,24 @@ var Sidebar = function (_React$Component) {
       this.props.dispatch(RemovePoint(id));
     }
   }, {
+    key: "downloadRoute",
+    value: function downloadRoute() {
+      var route = JSON.stringify(this.props.waypoints);
+      console.log(route);
+      var data = "data:application/javascript;charset=utf-8," + encodeURIComponent(route);
+
+      var link = document.createElement("a");
+      link.href = data;
+      link.target = "_blank";
+      link.style.display = "none";
+      link.download = "Tracks.gpx";
+
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+    }
+  }, {
     key: "render",
     value: function render() {
       var _this2 = this;
@@ -25859,36 +25872,49 @@ var Sidebar = function (_React$Component) {
         ),
         this.props.waypoints.length === 0 && react.createElement(
           "div",
-          { className: "sidebar-item" },
+          null,
           react.createElement(
             "span",
-            { className: "item-name full-width" },
+            { className: "item-name" },
             "Click on map to add waypoint"
           )
         ),
-        this.props.waypoints.map(function (waypoint, index) {
-          return react.createElement(
-            "div",
-            { key: waypoint.id, className: "sidebar-item" },
-            react.createElement("img", {
-              src: "/icons/menu.svg",
-              alt: "menu-item"
-            }),
-            react.createElement(
-              "span",
-              { className: "item-name" },
-              "Waypoint ",
-              index
-            ),
-            react.createElement("img", {
-              src: "/icons/delete.svg",
-              alt: "remove",
-              title: "remove waypoint",
-              className: "remove-item",
-              onClick: _this2.deleteItem.bind(_this2, waypoint.id)
-            })
-          );
-        })
+        react.createElement(
+          "section",
+          { id: "items-container" },
+          this.props.waypoints.map(function (waypoint, index) {
+            return react.createElement(
+              "div",
+              { key: waypoint.id, className: "sidebar-item" },
+              react.createElement("img", {
+                src: "/icons/menu.svg",
+                alt: "menu-item"
+              }),
+              react.createElement(
+                "span",
+                { className: "item-name" },
+                "Waypoint ",
+                index
+              ),
+              react.createElement("img", {
+                src: "/icons/delete.svg",
+                alt: "remove",
+                title: "remove waypoint",
+                className: "remove-item",
+                onClick: _this2.deleteItem.bind(_this2, waypoint.id)
+              })
+            );
+          })
+        ),
+        react.createElement(
+          "div",
+          { id: "save-data", onClick: this.downloadRoute.bind(this) },
+          react.createElement(
+            "span",
+            null,
+            "Download your Route"
+          )
+        )
       );
     }
   }]);

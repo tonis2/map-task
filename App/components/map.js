@@ -18,8 +18,6 @@ class Map extends React.Component {
   movePointPosition(event) {
     const { lat, lng } = event.target.getLatLng();
     const markerID = event.target.ID;
-
-    console.log(this)
     this.props.dispatch(MovePoint(markerID, lat, lng));
   }
 
@@ -33,9 +31,7 @@ class Map extends React.Component {
       });
 
       marker.ID = location.id;
-
       marker.on("dragend",  this.movePointPosition.bind(this));
-
       markers.push(marker);
     });
 
@@ -58,6 +54,11 @@ class Map extends React.Component {
     this.markerCluster.addTo(this.map);
   }
 
+  addPointToMap(event) {
+    const { lat, lng } = event.latlng;
+    this.props.dispatch(AddPoint(lat, lng));
+  }
+
   componentDidMount() {
     const layer = new L.StamenTileLayer("terrain");
     const map = new L.Map("map-container", {
@@ -65,12 +66,7 @@ class Map extends React.Component {
       zoom: 12
     });
     map.addLayer(layer);
-    map.on("click", event => {
-      const { lat, lng } = event.latlng;
-
-      this.props.dispatch(AddPoint(lat, lng));
-    });
-
+    map.on("click", this.addPointToMap.bind(this));
     this.map = map;
   }
   render() {

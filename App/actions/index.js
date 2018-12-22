@@ -1,4 +1,4 @@
-import { ADD_POINT, REMOVE_POINT, REARRANGE, DOWNLOAD_DATA } from "./types";
+import { ADD_POINT, REMOVE_POINT, REARRANGE } from "./types";
 import uuidv4 from "uuid/v4";
 
 export const AddPoint = (lat, lng) => ({
@@ -26,4 +26,4 @@ export const MovePoint = (id, lat, lng) => ({
   }
 });
 
-export const Download = (lat, lng) => ({});
+
