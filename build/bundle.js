@@ -23268,64 +23268,6 @@ var reactDom = createCommonjsModule(function (module) {
 });
 var reactDom_1 = reactDom.render;
 
-var rngBrowser = createCommonjsModule(function (module) {
-// Unique ID creation requires a high quality random # generator.  In the
-// browser this is a little complicated due to unknown quality of Math.random()
-// and inconsistent support for the `crypto` API.  We do the best we can via
-// feature-detection
-
-// getRandomValues needs to be invoked in a context where "this" is a Crypto
-// implementation. Also, find the complete implementation of crypto on IE11.
-var getRandomValues = (typeof(crypto) != 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto)) ||
-                      (typeof(msCrypto) != 'undefined' && typeof window.msCrypto.getRandomValues == 'function' && msCrypto.getRandomValues.bind(msCrypto));
-
-if (getRandomValues) {
-  // WHATWG crypto RNG - http://wiki.whatwg.org/wiki/Crypto
-  var rnds8 = new Uint8Array(16); // eslint-disable-line no-undef
-
-  module.exports = function whatwgRNG() {
-    getRandomValues(rnds8);
-    return rnds8;
-  };
-} else {
-  // Math.random()-based (RNG)
-  //
-  // If all else fails, use Math.random().  It's fast, but is of unspecified
-  // quality.
-  var rnds = new Array(16);
-
-  module.exports = function mathRNG() {
-    for (var i = 0, r; i < 16; i++) {
-      if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
-      rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
-    }
-
-    return rnds;
-  };
-}
-});
-
-/**
- * Convert array of 16 byte values to UUID string format of the form:
- * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
- */
-var byteToHex = [];
-for (var i = 0; i < 256; ++i) {
-  byteToHex[i] = (i + 0x100).toString(16).substr(1);
-}
-
-var ADD_POINT = 'ADD_POINT';
-
-var AddPoint = function AddPoint(lat, lng) {
-  return {
-    type: ADD_POINT,
-    payload: {
-      lat: lat,
-      lng: lng
-    }
-  };
-};
-
 function _inheritsLoose(subClass, superClass) {
   subClass.prototype = Object.create(superClass.prototype);
   subClass.prototype.constructor = subClass;
@@ -25595,6 +25537,130 @@ function createConnect(_temp) {
 }
 var connect = createConnect();
 
+var ADD_POINT = 'ADD_POINT';
+var REMOVE_POINT = 'REMOVE_POINT';
+var REARRANGE = 'REARRANGE';
+
+var rngBrowser = createCommonjsModule(function (module) {
+// Unique ID creation requires a high quality random # generator.  In the
+// browser this is a little complicated due to unknown quality of Math.random()
+// and inconsistent support for the `crypto` API.  We do the best we can via
+// feature-detection
+
+// getRandomValues needs to be invoked in a context where "this" is a Crypto
+// implementation. Also, find the complete implementation of crypto on IE11.
+var getRandomValues = (typeof(crypto) != 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto)) ||
+                      (typeof(msCrypto) != 'undefined' && typeof window.msCrypto.getRandomValues == 'function' && msCrypto.getRandomValues.bind(msCrypto));
+
+if (getRandomValues) {
+  // WHATWG crypto RNG - http://wiki.whatwg.org/wiki/Crypto
+  var rnds8 = new Uint8Array(16); // eslint-disable-line no-undef
+
+  module.exports = function whatwgRNG() {
+    getRandomValues(rnds8);
+    return rnds8;
+  };
+} else {
+  // Math.random()-based (RNG)
+  //
+  // If all else fails, use Math.random().  It's fast, but is of unspecified
+  // quality.
+  var rnds = new Array(16);
+
+  module.exports = function mathRNG() {
+    for (var i = 0, r; i < 16; i++) {
+      if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
+      rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
+    }
+
+    return rnds;
+  };
+}
+});
+
+/**
+ * Convert array of 16 byte values to UUID string format of the form:
+ * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+ */
+var byteToHex = [];
+for (var i = 0; i < 256; ++i) {
+  byteToHex[i] = (i + 0x100).toString(16).substr(1);
+}
+
+function bytesToUuid(buf, offset) {
+  var i = offset || 0;
+  var bth = byteToHex;
+  // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
+  return ([bth[buf[i++]], bth[buf[i++]], 
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]],
+	bth[buf[i++]], bth[buf[i++]],
+	bth[buf[i++]], bth[buf[i++]]]).join('');
+}
+
+var bytesToUuid_1 = bytesToUuid;
+
+function v4(options, buf, offset) {
+  var i = buf && offset || 0;
+
+  if (typeof(options) == 'string') {
+    buf = options === 'binary' ? new Array(16) : null;
+    options = null;
+  }
+  options = options || {};
+
+  var rnds = options.random || (options.rng || rngBrowser)();
+
+  // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
+  rnds[6] = (rnds[6] & 0x0f) | 0x40;
+  rnds[8] = (rnds[8] & 0x3f) | 0x80;
+
+  // Copy bytes to buffer, if provided
+  if (buf) {
+    for (var ii = 0; ii < 16; ++ii) {
+      buf[i + ii] = rnds[ii];
+    }
+  }
+
+  return buf || bytesToUuid_1(rnds);
+}
+
+var v4_1 = v4;
+
+var AddPoint = function AddPoint(lat, lng) {
+  return {
+    type: ADD_POINT,
+    payload: {
+      id: v4_1(),
+      lat: lat,
+      lng: lng
+    }
+  };
+};
+
+var RemovePoint = function RemovePoint(id) {
+  return {
+    type: REMOVE_POINT,
+    payload: {
+      id: id
+    }
+  };
+};
+
+var MovePoint = function MovePoint(id, lat, lng) {
+  return {
+    type: REARRANGE,
+    payload: {
+      id: id,
+      lat: lat,
+      lng: lng
+    }
+  };
+};
+
 var classCallCheck = function (instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -25664,32 +25730,72 @@ var createIcon = function createIcon(index) {
 var Map$1 = function (_React$Component) {
   inherits(Map, _React$Component);
 
-  function Map(props) {
+  function Map() {
     classCallCheck(this, Map);
-    return possibleConstructorReturn(this, (Map.__proto__ || Object.getPrototypeOf(Map)).call(this));
+
+    var _this = possibleConstructorReturn(this, (Map.__proto__ || Object.getPrototypeOf(Map)).call(this));
+
+    _this.markerCluster = L.layerGroup();
+    return _this;
   }
 
   createClass(Map, [{
-    key: "componentDidUpdate",
-    value: function componentDidUpdate() {
+    key: "movePointPosition",
+    value: function movePointPosition(event) {
+      var _event$target$getLatL = event.target.getLatLng(),
+          lat = _event$target$getLatL.lat,
+          lng = _event$target$getLatL.lng;
+
+      var markerID = event.target.ID;
+
+      console.log(this);
+      this.props.dispatch(MovePoint(markerID, lat, lng));
+    }
+  }, {
+    key: "createMarkers",
+    value: function createMarkers(waypoints) {
       var _this2 = this;
 
-      var markers = this.props.waypoints.map(function (pos) {
-        return new L.LatLng(pos.lat, pos.lng);
+      var markers = new Array();
+
+      waypoints.forEach(function (location, index) {
+        var marker = L.marker(location, {
+          icon: createIcon(index),
+          draggable: true
+        });
+
+        marker.ID = location.id;
+
+        marker.on("dragend", _this2.movePointPosition.bind(_this2));
+
+        markers.push(marker);
       });
-      this.props.waypoints.forEach(function (location, index) {
-        L.marker(location, { icon: createIcon(index) }).addTo(_this2.map);
-      });
-      L.polyline([].concat(toConsumableArray(markers)), {
+
+      markers.push(L.polyline([].concat(toConsumableArray(waypoints.map(function (location) {
+        return [location.lat, location.lng];
+      }))), {
         smoothFactor: 2.0,
         weight: 8,
         color: "var(--blue)"
-      }).addTo(this.map);
+      }));
+
+      return markers;
+    }
+  }, {
+    key: "componentDidUpdate",
+    value: function componentDidUpdate() {
+      var _this3 = this;
+
+      this.markerCluster.clearLayers();
+      this.createMarkers(this.props.waypoints).forEach(function (item) {
+        return _this3.markerCluster.addLayer(item);
+      });
+      this.markerCluster.addTo(this.map);
     }
   }, {
     key: "componentDidMount",
     value: function componentDidMount() {
-      var _this3 = this;
+      var _this4 = this;
 
       var layer = new L.StamenTileLayer("terrain");
       var map = new L.Map("map-container", {
@@ -25697,12 +25803,13 @@ var Map$1 = function (_React$Component) {
         zoom: 12
       });
       map.addLayer(layer);
-
       map.on("click", function (event) {
-        var coord = event.latlng;
-        var lat = coord.lat;
-        var lng = coord.lng;
-        _this3.props.dispatch(AddPoint(lat, lng));
+        var _event$latlng = event.latlng,
+            lat = _event$latlng.lat,
+            lng = _event$latlng.lng;
+
+
+        _this4.props.dispatch(AddPoint(lat, lng));
       });
 
       this.map = map;
@@ -25727,15 +25834,21 @@ var Map$2 = connect(mapStateToProps)(Map$1);
 var Sidebar = function (_React$Component) {
   inherits(Sidebar, _React$Component);
 
-  function Sidebar(props) {
+  function Sidebar() {
     classCallCheck(this, Sidebar);
-    return possibleConstructorReturn(this, (Sidebar.__proto__ || Object.getPrototypeOf(Sidebar)).call(this));
+    return possibleConstructorReturn(this, (Sidebar.__proto__ || Object.getPrototypeOf(Sidebar)).apply(this, arguments));
   }
 
   createClass(Sidebar, [{
+    key: "deleteItem",
+    value: function deleteItem(id) {
+      this.props.dispatch(RemovePoint(id));
+    }
+  }, {
     key: "render",
     value: function render() {
-      console.log(this.props.waypoints.length);
+      var _this2 = this;
+
       return react.createElement(
         "div",
         { id: "sidebar" },
@@ -25756,7 +25869,7 @@ var Sidebar = function (_React$Component) {
         this.props.waypoints.map(function (waypoint, index) {
           return react.createElement(
             "div",
-            { className: "sidebar-item" },
+            { key: waypoint.id, className: "sidebar-item" },
             react.createElement("img", {
               src: "/icons/menu.svg",
               alt: "menu-item"
@@ -25771,7 +25884,8 @@ var Sidebar = function (_React$Component) {
               src: "/icons/delete.svg",
               alt: "remove",
               title: "remove waypoint",
-              className: "remove-item"
+              className: "remove-item",
+              onClick: _this2.deleteItem.bind(_this2, waypoint.id)
             })
           );
         })
@@ -25796,6 +25910,19 @@ function mapReducer() {
   switch (action.type) {
     case ADD_POINT:
       state = [].concat(toConsumableArray(state), [action.payload]);
+      return state;
+    case REMOVE_POINT:
+      state = state.filter(function (item) {
+        return item.id !== action.payload.id;
+      });
+      return state;
+    case REARRANGE:
+      state = state.map(function (item) {
+        if (item.id === action.payload.id) {
+          item = action.payload;
+        }
+        return item;
+      });
       return state;
     default:
       return state;

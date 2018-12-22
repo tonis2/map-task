@@ -1,33 +1,29 @@
+import { ADD_POINT, REMOVE_POINT, REARRANGE, DOWNLOAD_DATA } from "./types";
 import uuidv4 from "uuid/v4";
-import { ADD_POINT, REMOVE_POINT, REORDER, DOWNLOAD_DATA } from "./types";
 
 export const AddPoint = (lat, lng) => ({
   type: ADD_POINT,
   payload: {
+    id: uuidv4(),
     lat,
     lng
   }
 });
 
-
-export const RemovePoint = (lat, lng) => ({
+export const RemovePoint = id => ({
   type: REMOVE_POINT,
   payload: {
-    lat,
-    lng
+    id
   }
 });
 
-
-export const Reorder = (lat, lng) => ({
-  type: ADD_POINT,
+export const MovePoint = (id, lat, lng) => ({
+  type: REARRANGE,
   payload: {
+    id,
     lat,
     lng
   }
 });
 
-
-export const Download = (lat, lng) => ({
-
-});
+export const Download = (lat, lng) => ({});

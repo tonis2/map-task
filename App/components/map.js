@@ -1,6 +1,6 @@
 import React from "react";
-import { AddPoint } from "../actions";
 import { connect } from "react-redux";
+import { AddPoint, MovePoint } from "../actions";
 
 const createIcon = index =>
   L.divIcon({
@@ -10,22 +10,52 @@ const createIcon = index =>
   });
 
 class Map extends React.Component {
-  constructor(props) {
+  constructor() {
     super();
+    this.markerCluster = L.layerGroup();
+  }
+
+  movePointPosition(event) {
+    const { lat, lng } = event.target.getLatLng();
+    const markerID = event.target.ID;
+
+    console.log(this)
+    this.props.dispatch(MovePoint(markerID, lat, lng));
+  }
+
+  createMarkers(waypoints) {
+    const markers = new Array();
+
+    waypoints.forEach((location, index) => {
+      const marker = L.marker(location, {
+        icon: createIcon(index),
+        draggable: true
+      });
+
+      marker.ID = location.id;
+
+      marker.on("dragend",  this.movePointPosition.bind(this));
+
+      markers.push(marker);
+    });
+
+    markers.push(
+      L.polyline([...waypoints.map(location => [location.lat, location.lng])], {
+        smoothFactor: 2.0,
+        weight: 8,
+        color: "var(--blue)"
+      })
+    );
+
+    return markers;
   }
 
   componentDidUpdate() {
-    const markers = this.props.waypoints.map(
-      pos => new L.LatLng(pos.lat, pos.lng)
+    this.markerCluster.clearLayers();
+    this.createMarkers(this.props.waypoints).forEach(item =>
+      this.markerCluster.addLayer(item)
     );
-    this.props.waypoints.forEach((location, index) => {
-      L.marker(location, { icon: createIcon(index) }).addTo(this.map);
-    });
-    L.polyline([...markers], {
-      smoothFactor: 2.0,
-      weight: 8,
-      color: "var(--blue)"
-    }).addTo(this.map);
+    this.markerCluster.addTo(this.map);
   }
 
   componentDidMount() {
@@ -35,17 +65,14 @@ class Map extends React.Component {
       zoom: 12
     });
     map.addLayer(layer);
-
     map.on("click", event => {
-      const coord = event.latlng;
-      const lat = coord.lat;
-      const lng = coord.lng;
+      const { lat, lng } = event.latlng;
+
       this.props.dispatch(AddPoint(lat, lng));
     });
 
     this.map = map;
   }
-
   render() {
     return <div id="map-container" />;
   }
