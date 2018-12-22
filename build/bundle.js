@@ -2212,10 +2212,7 @@ var Sidebar = function (_React$Component) {
             return react.createElement(
               "div",
               { key: waypoint.id, className: "sidebar-item" },
-              react.createElement("img", {
-                src: "icons/menu.svg",
-                alt: "menu-item"
-              }),
+              react.createElement("img", { src: "icons/menu.svg", alt: "menu-item" }),
               react.createElement(
                 "span",
                 { className: "item-name" },
@@ -2232,7 +2229,7 @@ var Sidebar = function (_React$Component) {
             );
           })
         ),
-        react.createElement(
+        this.props.waypoints.length > 0 && react.createElement(
           "div",
           { id: "save-data", onClick: this.downloadRoute.bind(this) },
           react.createElement(
