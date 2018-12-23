@@ -79,15 +79,18 @@ p {
   grid-template-rows: max-content;
   justify-content: center;
   align-items: center;
+  font-size:3vmin;
 }
 
 #sidebar .sidebar-item .item-name {
   text-align: left;
-  padding-left: 10px;
+  padding-left: 2vmin;
 }
 
-#sidebar .sidebar-item .remove-item {
+#sidebar .sidebar-item img {
   cursor:pointer;
+  width:3vmin;
+  height:3vmin;
 }
 
 #sidebar #items-container {
@@ -104,14 +107,27 @@ p {
   position: sticky;
   bottom: 1vmin;
   left: 5px;
-  padding: 5px 12px;
+  padding: 1vmin 2vmin;
   cursor: pointer;
   transition: 0.2s ease-in-out;
   border-radius: 5px;
-  font-size: 16px;
+  font-size: 2vmin;
   width: 80%;
 }
 
 #sidebar #save-data:hover {
   background:var(--teal);
 }
+
+
+@media (max-width: 1000px) { 
+  #sidebar .sidebar-item img:nth-of-type(1) {
+    display:none;
+  }
+
+  #sidebar .sidebar-item {
+    grid-template-columns:1fr 0.1fr;
+    font-size:2.5vmin;
+  }
+
+ }

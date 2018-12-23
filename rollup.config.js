@@ -33,12 +33,13 @@ const plugins = [
   })
 ];
 
-if (env === "production")
+if (env === "production") {
   plugins.push(
     uglify({
       compress: true
     })
   );
+}
 
 export default {
   input: "./App/index.js",
