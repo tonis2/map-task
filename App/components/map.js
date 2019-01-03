@@ -50,8 +50,6 @@ class Map extends React.Component {
                       })
                       .join("")}
                 </gpx>`;
-
-    console.log(xml);
     const data =
       "data:application/text;charset=utf-8," + encodeURIComponent(xml);
 
