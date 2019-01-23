@@ -10,3 +10,5 @@ Create running route on map and download it as GPX file.
 * Download the data as GPX
 
 Made with Leaflet and React
+
+Live [here](https://tonis2.github.io/map-task)
